@@ -1,9 +1,9 @@
 import express from "express";
 const app = express();
 import "dotenv/config";
-import connectDB from "./config/dbConfig.js";
-import authRoutes from "./routes/authRoutes.js";
-import { sendOTPVerificationEmail } from "./controllers/authController.js";
+import connectDB from "./src/config/dbConfig.js";
+// import { sendOTPVerificationEmail } from "./src/controllers/authController.js";
+import { authRoutes } from "./src/routes/index.js";
 
 app.get("/", (req, res) => {
   sendOTPVerificationEmail();
