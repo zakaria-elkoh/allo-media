@@ -56,7 +56,7 @@ const signIn = async (req, res) => {
   }
 };
 
-const resetPassword = async (req, res) => {
+const forgetPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -83,4 +83,4 @@ const resetPassword = async (req, res) => {
   }
 };
 
-export { signUp, signIn, resetPassword };
+export { signUp, signIn, forgetPassword };
