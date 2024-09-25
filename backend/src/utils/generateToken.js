@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const generateToken = function (user, expiresIn) {
+const generateToken = (user, expiresIn) => {
   return jwt.sign(
     {
       _id: user._id,

@@ -1,13 +1,17 @@
 import express from "express";
-const app = express();
 import "dotenv/config";
+
 import connectDB from "./src/config/dbConfig.js";
 // import { sendOTPVerificationEmail } from "./src/controllers/authController.js";
 import { authRoutes } from "./src/routes/index.js";
+import sendEmail from "./src/utils/sendEmail.js";
+
+const app = express();
 
 app.get("/", (req, res) => {
-  sendOTPVerificationEmail();
-  res.send("hello niggas!");
+  // sendOTPVerificationEmail();
+  sendEmail();
+  res.send("email was sent!");
 });
 
 // Middleware
