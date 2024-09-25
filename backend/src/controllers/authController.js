@@ -1,7 +1,9 @@
 import User from "../models/userModel.js";
+import bcrypt from "bcryptjs";
+import generateToken from "../utils/generateToken.js";
 
 const signUp = async (req, res) => {
-  const { password } = req.body;
+  const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
@@ -17,7 +19,10 @@ const signUp = async (req, res) => {
     });
 
     await newUser.save();
-    res.status(201).json({ message: "User created successfully" });
+    const token = generateToken(newUser, "1h");
+    res
+      .status(201)
+      .json({ message: "User created successfully", data: { token } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
