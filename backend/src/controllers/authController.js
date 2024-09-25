@@ -27,8 +27,8 @@ const signUp = async (req, res) => {
       subject: "Registration Confirmation",
       html: `<h1>Welcome to our platform!</h1><p>Please confirm your registration by clicking on the following link: <a href="http://localhost:3000/api/auth/confirmation/${token}">Confirm Registration</a></p>`,
     };
-
     sendEmail(emailInfo);
+
     res
       .status(201)
       .json({ message: "User created successfully", data: { token } });
