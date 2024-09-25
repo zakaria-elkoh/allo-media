@@ -8,7 +8,7 @@ const signUp = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (user)
-      return res.status(400).json({ error: "User is already registered!" });
+      return res.status(400).json({ error: "User is already signed up!" });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -36,4 +36,24 @@ const signUp = async (req, res) => {
   }
 };
 
-export { signUp };
+const signIn = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ error: "Invalid credentials" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
+
+    const token = generateToken(user, "1h");
+    res.json({
+      message: "User signed in successfully",
+      data: token,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export { signUp, signIn };
