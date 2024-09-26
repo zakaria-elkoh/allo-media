@@ -10,6 +10,8 @@ const userSchema = new Schema(
     PhoneNumber: String,
     Address: String,
     role: { type: String, required: true, default: "user" },
+    resetToken: String,
+    resetTokenExpiration: String,
   },
   { timestamps: true }
 );

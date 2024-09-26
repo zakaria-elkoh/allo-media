@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import { generateToken, sendEmail } from "../utils/index.js";
+import { validateSignUp } from "../validations/signUpSchema.js";
 
 const signUp = async (req, res) => {
   const { email, password } = req.body;
@@ -9,6 +10,10 @@ const signUp = async (req, res) => {
     const user = await User.findOne({ email });
     if (user)
       return res.status(400).json({ error: "User is already signed up!" });
+
+    const { error } = validateSignUp(req.body);
+    if (error)
+      return res.status(400).json({ error: "Invalid input!!!", data: error });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -83,4 +88,29 @@ const forgetPassword = async (req, res) => {
   }
 };
 
-export { signUp, signIn, forgetPassword };
+const resetPassword = async (req, res) => {
+  const { newPassword } = req.body;
+
+  try {
+    const resetToken = req.params.token;
+    const user = await User.findOne({ resetToken });
+    if (!user)
+      return res.status(400).json({ error: "Invalid or expired reset token" });
+    if (user.resetTokenExpiration < Date.now())
+      return res.status(400).json({ error: "Reset token has expired" });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    user.resetToken = null;
+    user.resetTokenExpiration = null;
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export { signUp, signIn, forgetPassword, resetPassword };
