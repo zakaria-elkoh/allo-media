@@ -5,13 +5,22 @@ import connectDB from "./src/config/dbConfig.js";
 // import { sendOTPVerificationEmail } from "./src/controllers/authController.js";
 import { authRoutes } from "./src/routes/index.js";
 import sendEmail from "./src/utils/sendEmail.js";
+import { sendOTP } from "./src/utils/sendSMS.js";
 
 const app = express();
 
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
   // sendOTPVerificationEmail();
-  sendEmail();
-  res.send("email was sent!");
+  try {
+    const result = await sendOTP();
+    res.json({ success: true, message: "OTP sent successfully", result });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to send OTP",
+      error: error.message,
+    });
+  }
 });
 
 // Middleware

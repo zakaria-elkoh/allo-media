@@ -2,6 +2,7 @@ import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import { generateToken, sendEmail } from "../utils/index.js";
 import { validateSignUp } from "../validations/signUpSchema.js";
+import { sendOTPByEmail } from "../utils/sendOTP.js";
 
 const signUp = async (req, res) => {
   const { email, password } = req.body;
@@ -113,4 +114,54 @@ const resetPassword = async (req, res) => {
   }
 };
 
-export { signUp, signIn, forgetPassword, resetPassword };
+const sendOTP = async (req, res) => {
+  try {
+    const isSent = await sendOTPByEmail(req.params.userId);
+    if (!isSent) {
+      throw new Error("Failed to send OTP");
+    }
+    res.status(200).json({ message: "OTP was sent successfully" });
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    throw error;
+  }
+};
+
+const verifyOTP = async (req, res) => {
+  try {
+    const otp = req.body.otp;
+    console.log("otp:::::", otp);
+
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    console.log("user:::::", user);
+
+    if (!user.otp || !user.OTPExpiration) {
+      throw new Error("OTP not found or expired");
+    }
+
+    if (Date.now() > user.OTPExpiration) {
+      throw new Error("OTP has expired");
+    }
+    const isValid = await bcrypt.compare(otp, user.otp);
+    // const isValid = otp == user.otp;
+
+    if (!isValid) {
+      throw new Error("Invalid OTP");
+    }
+
+    user.otp = undefined;
+    user.OTPExpiration = undefined;
+    user.twoStepVerification = true;
+    await user.save();
+
+    return { message: "OTP verified successfully", user };
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    throw error;
+  }
+};
+
+export { signUp, signIn, forgetPassword, resetPassword, sendOTP, verifyOTP };

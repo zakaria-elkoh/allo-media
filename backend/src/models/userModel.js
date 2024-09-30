@@ -12,6 +12,9 @@ const userSchema = new Schema(
     role: { type: String, required: true, default: "user" },
     resetToken: String,
     resetTokenExpiration: String,
+    twoStepVerification: { type: Boolean, default: false },
+    otp: String,
+    OTPExpiration: String,
   },
   { timestamps: true }
 );
