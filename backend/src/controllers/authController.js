@@ -6,6 +6,7 @@ import { sendOTPByEmail } from "../utils/sendOTP.js";
 
 const signUp = async (req, res) => {
   const { email, password } = req.body;
+  console.log("req.body:::::", req.body);
 
   try {
     const user = await User.findOne({ email });
@@ -34,15 +35,17 @@ const signUp = async (req, res) => {
     };
     sendEmail(emailInfo);
 
-    res
-      .status(201)
-      .json({ message: "User created successfully", data: { token } });
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      data: { token, user: { ...user._doc, password: null } },
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
-const signIn = async (req, res) => {
+const logIn = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -54,11 +57,12 @@ const signIn = async (req, res) => {
 
     const token = generateToken(user);
     res.json({
+      success: true,
       message: "User signed in successfully",
-      data: token,
+      data: { token, user: { ...user._doc, password: null } },
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -164,4 +168,26 @@ const verifyOTP = async (req, res) => {
   }
 };
 
-export { signUp, signIn, forgetPassword, resetPassword, sendOTP, verifyOTP };
+const currentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password");
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+    }
+    res
+      .status(200)
+      .json({ success: true, message: "User retrieved successfully", user });
+  } catch (error) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+export {
+  signUp,
+  logIn,
+  forgetPassword,
+  resetPassword,
+  sendOTP,
+  verifyOTP,
+  currentUser,
+};

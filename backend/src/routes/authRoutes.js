@@ -1,17 +1,20 @@
 import express from "express";
 import {
+  currentUser,
   forgetPassword,
+  logIn,
   resetPassword,
   sendOTP,
-  signIn,
   signUp,
   verifyOTP,
 } from "../controllers/authController.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
 router.post("/signup", signUp);
-router.post("/signin", signIn);
+router.post("/login", logIn);
+router.get("/current-user", authMiddleware, currentUser);
 router.post("/forget-password", forgetPassword);
 router.get("/reset-password/:token", resetPassword);
 router.get("/get-otp/:userId", sendOTP);
