@@ -4,16 +4,17 @@ import { Toaster } from "sonner";
 
 const DefaultLayout = () => {
   return (
-    <main className="bg-gray-100 min-h-screen">
+    <main className="bg-gray-200 min-h-screen">
       <Toaster
         position="bottom-right"
         closeButton
-        richColors
+        // richColors
         toastOptions={{
           style: {
             minWidth: "200px",
             maxWidth: "400px",
-            padding: "12px 16px",
+            padding: "13px 16px",
+            fontSize: "0.85rem",
           },
           duration: 5000,
         }}

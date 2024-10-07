@@ -27,12 +27,15 @@ import { login } from "@/store/slices/authSlice";
 import { AppDispatch, RootState } from "@/store";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
+import OTP from "./OTP";
 
 const LogIn = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const { loading, error, isOtpRequired } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const form = useForm<z.infer<typeof logInSchema>>({
     resolver: zodResolver(logInSchema),
@@ -61,6 +64,10 @@ const LogIn = () => {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  if (isOtpRequired) {
+    return <OTP error={error?.error} />;
   }
 
   return (
@@ -116,15 +123,15 @@ const LogIn = () => {
                   )}
                 />
               </div>
+              {error && <p className="text-red-500">{error?.error}</p>}
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-6 flex gap-1"
+                className="mt-2 flex gap-1"
               >
                 {isSubmitting && (
                   <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
                 )}
-
                 {isSubmitting ? "Submitting..." : "Log in"}
               </Button>
             </form>

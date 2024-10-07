@@ -22,6 +22,7 @@ import { z } from "zod";
 import { Link } from "react-router-dom";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
+import { forgetPassword } from "@/http/Auth";
 
 const ForgetPassword = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,15 +38,13 @@ const ForgetPassword = () => {
     },
   });
 
-  // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof forgetPasswordSchema>) {
     setIsSubmitting(true);
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
     console.log(values);
-    setTimeout(() => {
+    setTimeout(() => {}, 2000);
+    forgetPassword(values).then(() => {
       setIsSubmitting(false);
-    }, 2000);
+    });
   }
 
   return (

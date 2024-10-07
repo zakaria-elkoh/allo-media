@@ -15,17 +15,17 @@ const sendOTPByEmail = async (userId) => {
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
     const otpExpiration = Date.now() + 600000; // 10 minutes
 
-    const hashedOTP = await bcrypt.hash(otp, 10);
+    // const hashedOTP = await bcrypt.hash(otp, 10);
 
-    user.otp = hashedOTP;
+    user.otp = otp;
     user.OTPExpiration = otpExpiration;
     await user.save();
 
-    const to = "zakariaelkoh00@gmail.com";
-    const subject = "Your OTP for Two-Step Verification";
-    const html = `Your OTP is ${otp}. It will expire in 10 minutes.`;
+    // const to = "zakariaelkoh00@gmail.com";
+    // const subject = "Your OTP for Two-Step Verification";
+    // const html = `Your OTP is ${otp}. It will expire in 10 minutes.`;
 
-    sendEmail({ to, subject, html });
+    // sendEmail({ to, subject, html });
 
     return { message: "OTP sent successfully" };
   } catch (error) {

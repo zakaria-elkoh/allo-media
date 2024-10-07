@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../services/api";
+import { toast } from "sonner";
 
 interface User {
   id: string;
@@ -8,6 +9,7 @@ interface User {
   userName: string;
   email: string;
   role: string;
+  twoStepVerification: boolean;
 }
 
 interface AuthState {
@@ -15,6 +17,12 @@ interface AuthState {
   token: string | null;
   loading: boolean;
   error: string | null;
+  isOtpRequired: boolean;
+}
+
+interface VerifyOTPData {
+  userId: string;
+  otp: string;
 }
 
 const initialState: AuthState = {
@@ -22,6 +30,7 @@ const initialState: AuthState = {
   token: localStorage.getItem("token"),
   loading: false,
   error: null,
+  isOtpRequired: false,
 };
 
 export const login = createAsyncThunk(
@@ -32,7 +41,6 @@ export const login = createAsyncThunk(
   ) => {
     try {
       const response = await api.post("/auth/login", { email, password });
-      localStorage.setItem("token", response.data.data.token);
       console.log("response", response.data.data.token);
 
       return response.data;
@@ -78,6 +86,38 @@ export const currentUser = createAsyncThunk(
   }
 );
 
+export const verifyOtp = createAsyncThunk(
+  "auth/verifyOtp",
+  async (verifyOTPData: VerifyOTPData, { rejectWithValue }) => {
+    try {
+      console.log("verifyOTPData", verifyOTPData);
+      const response = await api.post(
+        `/auth/verify-otp/${verifyOTPData.userId}`,
+        { otp: verifyOTPData.otp }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const toggleTwoStepVerification = createAsyncThunk(
+  "user/twoStepVerification",
+  async (twoStepVerification: boolean, { rejectWithValue }) => {
+    try {
+      console.log("verifyOTPData", twoStepVerification);
+      const response = await api.post(`/auth/two-step-verification`, {
+        twoStepVerification,
+      });
+      console.log("response", response.data);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -92,11 +132,20 @@ const authSlice = createSlice({
         login.fulfilled,
         (
           state,
-          action: PayloadAction<{ data: { user: User; token: string } }>
+          action: PayloadAction<{
+            data: { user: User; token: string; twoStepVerification: boolean };
+          }>
         ) => {
           state.loading = false;
-          state.user = action.payload.data.user;
-          state.token = action.payload.data.token;
+          console.log("action.payload,login.fulfilled", action.payload);
+          if (action.payload.data.user.twoStepVerification) {
+            state.isOtpRequired = true;
+            state.user = action.payload.data.user;
+          } else {
+            localStorage.setItem("token", action.payload.data.token);
+            state.user = action.payload.data.user;
+            state.token = action.payload.data.token;
+          }
         }
       )
       .addCase(login.rejected, (state, action) => {
@@ -139,6 +188,37 @@ const authSlice = createSlice({
         state.user = null;
         state.token = null;
         localStorage.removeItem("token");
+      })
+      .addCase(verifyOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyOtp.fulfilled, (state, action) => {
+        console.log("action.payload,verifyOtp.fulfilled", action.payload);
+        state.loading = false;
+        state.isOtpRequired = false;
+        state.user = action.payload.data.user;
+        state.token = action.payload.data.token;
+        localStorage.setItem("token", action.payload.data.token);
+      })
+      .addCase(verifyOtp.rejected, (state, action) => {
+        console.log("action.payload", action.payload);
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(toggleTwoStepVerification.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(toggleTwoStepVerification.fulfilled, (state, action) => {
+        console.log(
+          "action.payload,verifyOtp.toggleTwoStepVerification",
+          action.payload
+        );
+        state.loading = false;
+        state.user.twoStepVerification =
+          action.payload.data.twoStepVerification;
+        toast.success("Two-step verification toggled successfully");
       });
   },
 });

@@ -12,8 +12,9 @@ const sendEmail = async ({ to, subject, html }) => {
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: '"Allo Media 👻" <maddison53@ethereal.email>',
       to,
+      text: "Hello world?",
       subject,
       html,
     };
