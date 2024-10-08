@@ -29,6 +29,7 @@ import { signup } from "../../store/slices/authSlice";
 
 const SignUp = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state: RootState) => state.auth);
@@ -63,7 +64,7 @@ const SignUp = () => {
 
   return (
     <div className="mt-10 w-full flex justify-center items-center">
-      <p className="py-4 bg-red-300 text-center">{error}</p>
+      <p className="py-4 bg-red-300 text-center">{error?.error}</p>
       <Card className="w-[350px]">
         <CardHeader>
           <CardTitle className="text-2xl">Sign Up</CardTitle>

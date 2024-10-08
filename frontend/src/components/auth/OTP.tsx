@@ -52,7 +52,7 @@ const OTP = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6 flex flex-col justify-center shadow-md mt-20 rounded-lg p-6 min-w-72 bg-white"
+          className="space-y-6 flex flex-col border border-white/25 bg-white justify-center shadow-md mt-20 rounded-lg p-6 min-w-72 dark:bg-black"
         >
           <FormField
             control={form.control}

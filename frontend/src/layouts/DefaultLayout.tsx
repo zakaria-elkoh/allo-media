@@ -4,7 +4,7 @@ import { Toaster } from "sonner";
 
 const DefaultLayout = () => {
   return (
-    <main className="bg-gray-200 min-h-screen">
+    <main className="bg-gray-200 min-h-screen dark:bg-black">
       <Toaster
         position="bottom-right"
         closeButton
