@@ -26,6 +26,6 @@ const schema = Joi.object({
   }),
 });
 
-export const validateSignUp = (user) => {
-  return schema.validate(user);
-};
+// export const validateSignUp = (user) => {
+//   return schema.validate(user);
+// };

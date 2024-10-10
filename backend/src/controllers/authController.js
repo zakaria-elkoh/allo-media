@@ -57,8 +57,7 @@ const logIn = async (req, res) => {
 
     if (user.twoStepVerification === true) {
       const otp = Math.floor(1000 + Math.random() * 9000).toString();
-      const otpExpiration = Date.now() + 600000; // 10 minutes
-      // const hashedOTP = await bcrypt.hash(otp, 10);
+      const otpExpiration = Date.now() + 600000; // 10 min
       user.otp = otp;
       user.OTPExpiration = otpExpiration;
       await user.save();
