@@ -22,7 +22,7 @@ import { z } from "zod";
 import { Link } from "react-router-dom";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
-import { forgetPassword } from "@/http/Auth";
+import { forgetPassword } from "../../http/auth";
 
 const ForgetPassword = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);

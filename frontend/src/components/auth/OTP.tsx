@@ -19,7 +19,7 @@ import {
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
-import { verifyOtp } from "@/store/slices/authSlice";
+import { reSendOTP, verifyOtp } from "@/store/slices/authSlice";
 
 const FormSchema = z.object({
   otp: z.string().min(4, {
@@ -47,6 +47,11 @@ const OTP = () => {
     await dispatch(verifyOtp(data));
     console.log("data", data);
   }
+
+  const handleResend = async () => {
+    await dispatch(reSendOTP("670d243cda5551f9d6a628c2"));
+  };
+
   return (
     <div className="h-full flex justify-center">
       <Form {...form}>
@@ -87,6 +92,7 @@ const OTP = () => {
             {loading ? "Submitting..." : "Submit"}
           </Button>
         </form>
+        <button onClick={handleResend}>resend</button>
       </Form>
     </div>
   );

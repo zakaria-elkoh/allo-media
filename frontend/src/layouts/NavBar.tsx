@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { LogIn, LogOut, Menu, User, UserPlus } from "lucide-react";
 import { logout } from "@/store/slices/authSlice";
 import { useDispatch, useSelector } from "react-redux";

@@ -13,7 +13,7 @@ import { SettingsIcon } from "lucide-react";
 const Settings = () => {
   return (
     <Sheet>
-      <SheetTrigger asChild className="fixed top-28 left-0">
+      <SheetTrigger asChild className="fixed top-28 left-0 z-50 border-gray-400 rounded-l-none border-l-0">
         <Button variant="outline">
           <SettingsIcon className="h-5 w-5" />
         </Button>

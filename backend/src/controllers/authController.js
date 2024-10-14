@@ -28,12 +28,12 @@ const signUp = async (req, res) => {
     await newUser.save();
     const token = generateToken(newUser);
 
-    // const emailInfo = {
-    //   to: "zakariaelkoh00@gmail.com",
-    //   subject: "Registration Confirmation",
-    //   html: `<h1>Welcome to our platform!</h1><p>Please confirm your registration by clicking on the following link: <a href="http://localhost:3000/api/auth/confirmation/${token}">Confirm Registration</a></p>`,
-    // };
-    // sendEmail(emailInfo);
+    const emailInfo = {
+      to: newUser.email,
+      subject: "Registration Confirmation",
+      html: `<h1>Welcome to our platform!</h1><p>Please confirm your registration by clicking on the following link: <a href="http://localhost:3000/api/auth/confirmation/${token}">Confirm Registration</a></p>`,
+    };
+    sendEmail(emailInfo);
 
     res.status(201).json({
       success: true,
@@ -57,10 +57,75 @@ const logIn = async (req, res) => {
 
     if (user.twoStepVerification === true) {
       const otp = Math.floor(1000 + Math.random() * 9000).toString();
-      const otpExpiration = Date.now() + 600000; // 10 min
+      const otpExpiration = Date.now() + 600000; // 10 mins
       user.otp = otp;
       user.OTPExpiration = otpExpiration;
       await user.save();
+      const emailInfo = {
+        to: user.email,
+        subject: "Password Reset",
+        html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Two-Step Verification Code</title>
+              <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      line-height: 1.6;
+                      color: #333333;
+                      max-width: 600px;
+                      margin: 0 auto;
+                      padding: 20px;
+                  }
+                  .container {
+                      background-color: #f9f9f9;
+                      border-radius: 5px;
+                      padding: 20px;
+                      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                  }
+                  h1 {
+                      color: #0066cc;
+                      text-align: center;
+                  }
+                  .otp {
+                      background-color: #e6f2ff;
+                      font-size: 24px;
+                      font-weight: bold;
+                      text-align: center;
+                      padding: 10px;
+                      margin: 20px 0;
+                      border-radius: 5px;
+                  }
+                  .footer {
+                      margin-top: 20px;
+                      text-align: center;
+                      font-size: 12px;
+                      color: #666666;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>Two-Step Verification Code</h1>
+                  <p>Hello,</p>
+                  <p>Your two-step verification code is:</p>
+                  <div class="otp">${otp}</div>
+                  <p>Please enter this code to complete your login process. This code will expire in 10 minutes.</p>
+                  <p>If you didn't attempt to log in, please secure your account and contact our support team immediately.</p>
+                  <div class="footer">
+                      <p>This is an automated message, please do not reply to this email.</p>
+                      <p>If you need assistance, please contact our support team.</p>
+                      <p>&copy; 2024 YourCompanyName. All rights reserved.</p>
+                  </div>
+              </div>
+          </body>
+          </html>
+          `,
+      };
+      sendEmail(emailInfo);
       res.json({
         success: true,
         message: "Please enter the OTP sent to your email",
@@ -86,6 +151,7 @@ const logIn = async (req, res) => {
   }
 };
 
+// setTimeout 3000
 const forgetPassword = async (req, res) => {
   const { email } = req.body;
 
@@ -97,7 +163,7 @@ const forgetPassword = async (req, res) => {
         .json({ error: "Sorry, We could not found your account" });
 
     const resetToken = generateToken(user);
-    const resetTokenExpiration = Date.now() + 3600000;
+    const resetTokenExpiration = Date.now() + 3600000; // 60 mins
 
     user.resetToken = resetToken;
     user.resetTokenExpiration = resetTokenExpiration;
@@ -105,8 +171,69 @@ const forgetPassword = async (req, res) => {
 
     const emailInfo = {
       to: user.email,
-      subject: "Password Reset",
-      html: `<h1>Reset Password</h1><p>Please click on the following link to reset your password: <a href="${process.env.BACK_END}/api/auth/reset-password/${resetToken}">Reset Password</a></p><p>This link will expire in 1 hour.</p>`,
+      subject: "Reset Your Password",
+      html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Reset Your Password</title>
+              <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      line-height: 1.6;
+                      color: #333333;
+                      max-width: 600px;
+                      margin: 0 auto;
+                      padding: 20px;
+                  }
+                  .container {
+                      background-color: #f9f9f9;
+                      border-radius: 5px;
+                      padding: 20px;
+                      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                  }
+                  h1 {
+                      color: #0066cc;
+                      text-align: center;
+                  }
+                  .button {
+                      display: inline-block;
+                      background-color: #0066cc;
+                      color: #ffffff !important;
+                      text-decoration: none;
+                      padding: 10px 20px;
+                      border-radius: 5px;
+                      margin-top: 20px;
+                  }
+                  .footer {
+                      margin-top: 20px;
+                      text-align: center;
+                      font-size: 12px;
+                      color: #666666;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>Reset Your Password</h1>
+                  <p>Hello,</p>
+                  <p>We received a request to reset your password. Please click on the following button to reset your password:</p>
+                  <p style="text-align: center;">
+                      <a href="${process.env.BACK_END}/api/auth/reset-password/${resetToken}" class="button">Reset Password</a>
+                  </p>
+                  <p>If you didn't request a password reset, please ignore this email or contact our support team if you have any concerns.</p>
+                  <p><strong>Please note:</strong> This link will expire in 1 hour for security reasons.</p>
+                  <div class="footer">
+                      <p>This is an automated message, please do not reply to this email.</p>
+                      <p>If you need assistance, please contact our support team.</p>
+                      <p>&copy; 2024 YourCompanyName. All rights reserved.</p>
+                  </div>
+              </div>
+          </body>
+          </html>
+        `,
     };
     sendEmail(emailInfo);
 
@@ -145,35 +272,20 @@ const resetPassword = async (req, res) => {
   }
 };
 
-// const sendOTP = async (req, res) => {
-//   try {
-//     const isSent = await sendOTPByEmail(req.params.userId);
-//     if (!isSent) {
-//       throw new Error("Failed to send OTP");
-//     }
-//     res.status(200).json({ message: "OTP was sent successfully" });
-//   } catch (error) {
-//     console.error("Error sending OTP:", error);
-//     throw error;
-//   }
-// };
-
+// setTimeout 3000
 const verifyOTP = async (req, res) => {
   try {
     setTimeout(async () => {
       const otp = req.body.otp;
-      console.log("otp:::::", otp);
 
       const user = await User.findById(req.params.userId);
       if (!user) return res.status(400).json({ error: "User not found" });
-      console.log("user:::::", user);
 
       if (!user.otp || !user.OTPExpiration)
         return res.status(400).json({ error: "OTP not found or expired" });
 
       if (Date.now() > user.OTPExpiration)
         return res.status(400).json({ error: "OTP has expired" });
-      // const isValid = await bcrypt.compare(otp, user.otp);
       const isValid = otp === user.otp;
 
       if (!isValid) return res.status(400).json({ error: "Invalid OTP" });
@@ -196,6 +308,7 @@ const verifyOTP = async (req, res) => {
   }
 };
 
+// setTimeout 2000
 const currentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select("-password");
@@ -213,6 +326,7 @@ const currentUser = async (req, res) => {
   }
 };
 
+// setTimeout 2000
 const toggleTwoStepVerification = async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(req.user._id, {
@@ -234,6 +348,87 @@ const toggleTwoStepVerification = async (req, res) => {
   }
 };
 
+const reSendOTP = async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.params.userId });
+    if (!user) res.status(400).json({ error: "User not found" });
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const otpExpiration = Date.now() + 600000; // 10 mins
+    user.otp = otp;
+    user.OTPExpiration = otpExpiration;
+    await user.save();
+    const emailInfo = {
+      to: user.email,
+      subject: "Password Reset",
+      html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Two-Step Verification Code</title>
+              <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      line-height: 1.6;
+                      color: #333333;
+                      max-width: 600px;
+                      margin: 0 auto;
+                      padding: 20px;
+                  }
+                  .container {
+                      background-color: #f9f9f9;
+                      border-radius: 5px;
+                      padding: 20px;
+                      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                  }
+                  h1 {
+                      color: #0066cc;
+                      text-align: center;
+                  }
+                  .otp {
+                      background-color: #e6f2ff;
+                      font-size: 24px;
+                      font-weight: bold;
+                      text-align: center;
+                      padding: 10px;
+                      margin: 20px 0;
+                      border-radius: 5px;
+                  }
+                  .footer {
+                      margin-top: 20px;
+                      text-align: center;
+                      font-size: 12px;
+                      color: #666666;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>Two-Step Verification Code</h1>
+                  <p>Hello,</p>
+                  <p>Your two-step verification code is:</p>
+                  <div class="otp">${otp}</div>
+                  <p>Please enter this code to complete your login process. This code will expire in 10 minutes.</p>
+                  <p>If you didn't attempt to log in, please secure your account and contact our support team immediately.</p>
+                  <div class="footer">
+                      <p>This is an automated message, please do not reply to this email.</p>
+                      <p>If you need assistance, please contact our support team.</p>
+                      <p>&copy; 2024 YourCompanyName. All rights reserved.</p>
+                  </div>
+              </div>
+          </body>
+          </html>
+          `,
+    };
+    sendEmail(emailInfo);
+    res.status(200).json({ message: "OTP was sent successfully" });
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    throw error;
+  }
+};
+
 export {
   signUp,
   logIn,
@@ -242,4 +437,5 @@ export {
   verifyOTP,
   currentUser,
   toggleTwoStepVerification,
+  reSendOTP,
 };
