@@ -1,20 +1,23 @@
-version: "3"
+version: "3.8"
 services:
   backend:
-    image: node:20
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: backend-api
     working_dir: /app
-    command: npm run dev
+    command: npm start
     ports:
       - "3000:3000"
     volumes:
       - "./backend/:/app"
   frontend:
-    image: node:20
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: frontend-web
-    working_dir: /src
-    command: npm run dev
     ports:
-      - "5000:5000"
+      - "5173:5173"
     volumes:
-      - "./frontend/:/src"
+      - "./frontend:/src"
+    command: npm run dev

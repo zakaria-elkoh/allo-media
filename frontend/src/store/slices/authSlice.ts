@@ -118,6 +118,20 @@ export const toggleTwoStepVerification = createAsyncThunk(
   }
 );
 
+export const reSendOTP = createAsyncThunk(
+  "user/reSendOTP",
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      console.log("userId userId", userId);
+      const response = await api.get(`/auth//resend-otp/${userId}`);
+      console.log("response", response.data);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -219,6 +233,10 @@ const authSlice = createSlice({
         state.user.twoStepVerification =
           action.payload.data.twoStepVerification;
         toast.success("Two-step verification toggled successfully");
+      })
+      .addCase(reSendOTP.fulfilled, (state, action) => {
+        console.log("action.payload,reSendOTP.reSendOTP", action.payload);
+        toast.success(action.payload.message);
       });
   },
 });

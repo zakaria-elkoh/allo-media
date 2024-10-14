@@ -32,7 +32,7 @@ const SignUp = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const { error } = useSelector((state: RootState) => state.auth);
 
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -50,10 +50,9 @@ const SignUp = () => {
     try {
       const resultAction = await dispatch(signup(userInfo));
       if (signup.fulfilled.match(resultAction)) {
-        alert("Signup successful! Redirecting to home page...");
         setTimeout(() => navigate("/"), 2000);
       } else if (signup.rejected.match(resultAction)) {
-        console.error("Signup failed:", resultAction.error);
+        console.error("failed:", resultAction.error);
       }
     } catch (err) {
       console.error("An error occurred:", err);
@@ -64,7 +63,6 @@ const SignUp = () => {
 
   return (
     <div className="mt-10 w-full flex justify-center items-center">
-      <p className="py-4 bg-red-300 text-center">{error?.error}</p>
       <Card className="w-[350px]">
         <CardHeader>
           <CardTitle className="text-2xl">Sign Up</CardTitle>
@@ -159,6 +157,7 @@ const SignUp = () => {
                   )}
                 />
               </div>
+              <p className="text-red-500">{error?.error}</p>
               <Button
                 disabled={isSubmitting}
                 type="submit"
